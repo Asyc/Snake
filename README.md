@@ -19,4 +19,4 @@ Clone this repo recursively, and then you can generate build files with CMake.
    ```
    $ cmake ../
    ```
-1. Use the generated build files to compile
+1. Use the generated build files to compile an executable
