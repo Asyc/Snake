@@ -36,6 +36,7 @@ public:
     [[nodiscard]] const Queue& getGraphicsQueue() const;
     [[nodiscard]] const Queue& getPresentQueue() const;
     [[nodiscard]] Swapchain& getSwapchain();
+    [[nodiscard]] const Swapchain& getSwapchain() const;
 
 private:
     vk::UniqueInstance m_Instance;

@@ -115,7 +115,7 @@ void Swapchain::createSwapchain() {
     }
 }
 
-void Swapchain::nextImage() {
+const Swapchain::ImageFlightData& Swapchain::nextImage() {
     if (++m_ImageInFlight >= MAX_CONCURRENT_FRAMES) m_ImageInFlight = 0;
     auto& image = m_ImageFlightData[m_ImageInFlight];
 
@@ -131,6 +131,8 @@ void Swapchain::nextImage() {
 
     vk::RenderPassBeginInfo renderPassBeginInfo(*m_RenderPass, *image.m_BoundImage->m_FrameBuffer, vk::Rect2D({}, m_Extent), 1, &clearValue);
     image.m_CommandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eSecondaryCommandBuffers);
+
+    return image;
 }
 
 void Swapchain::presentImage() {
@@ -148,4 +150,12 @@ void Swapchain::presentImage() {
 
     vk::PresentInfoKHR presentInfo(1, &*image.m_RenderFinished, 1, &*m_Swapchain, &image.m_BoundImage->m_Index);
     m_Parent->getPresentQueue()->presentKHR(presentInfo);
+}
+
+vk::RenderPass Swapchain::getRenderPass() const {
+    return *m_RenderPass;
+}
+
+vk::Extent2D Swapchain::getExtent() const {
+    return m_Extent;
 }

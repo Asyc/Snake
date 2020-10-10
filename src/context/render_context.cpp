@@ -89,6 +89,10 @@ Swapchain& RenderContext::getSwapchain() {
     return m_Swapchain;
 }
 
+const Swapchain& RenderContext::getSwapchain() const {
+    return m_Swapchain;
+}
+
 vk::PhysicalDevice RenderContext::selectPhysicalDevice(const std::vector<vk::PhysicalDevice>& devices) {
     return devices[0];
 }

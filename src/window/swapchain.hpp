@@ -27,9 +27,15 @@ public:
     };
 
     explicit Swapchain(RenderContext* context);
+
     void createSwapchain();
-    void nextImage();
+
+    const ImageFlightData& nextImage();
     void presentImage();
+
+    [[nodiscard]] vk::Extent2D getExtent() const;
+    [[nodiscard]] vk::RenderPass getRenderPass() const;
+
 private:
     Swapchain() = default;
 
