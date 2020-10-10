@@ -124,24 +124,7 @@ void Swapchain::nextImage() {
     uint32_t imageIndex = m_Parent->getDevice().acquireNextImageKHR(*m_Swapchain, UINT64_MAX, *image.m_ImageReady, {});
     image.m_BoundImage = &m_Images[imageIndex];
 
-    static float r = 0.0f, g = 0.0f, b = 0.0f;
-    static bool up = true;
-
-    if (up) {
-        if (r < 1.0f) r += 0.1f;
-        else if (g < 1.0f) g += 0.1f;
-        else if (b < 1.0f) b += 0.1f;
-        else up = false;
-    }
-
-    if (!up) {
-        if (b > 0.0f) b -= 0.1f;
-        else if (g > 0.0f) g-=0.1f;
-        else if (r > 0.0f) r-=0.1f;
-        else up = true;
-    }
-
-    vk::ClearValue clearValue(vk::ClearColorValue(std::array<float, 4>{r, g, b, 0.0f}));
+    vk::ClearValue clearValue(vk::ClearColorValue(std::array<float, 4>{}));
 
     vk::CommandBufferBeginInfo commandBufferBeginInfo;
     image.m_CommandBuffer->begin(commandBufferBeginInfo);
