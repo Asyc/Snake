@@ -8,8 +8,11 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "render/command.hpp"
 #include "window/swapchain.hpp"
 #include "window/window.hpp"
+
+struct CommandPool;
 
 class RenderContext {
 public:
@@ -30,6 +33,7 @@ public:
 
     RenderContext(Window& window, const std::string_view& title, const Version& version, const PhysicalDeviceSelector& physicalDeviceSelector = selectPhysicalDevice);
 
+    [[nodiscard]] CommandPool createCommandPool(const vk::CommandPoolCreateFlags& flags = {});
     [[nodiscard]] vk::SurfaceKHR getSurface() const;
     [[nodiscard]] vk::PhysicalDevice getPhysicalDevice() const;
     [[nodiscard]] vk::Device getDevice() const;
@@ -49,6 +53,5 @@ private:
 
     Swapchain m_Swapchain;
 };
-
 
 #endif //SNAKE_RENDER_CONTEXT_HPP

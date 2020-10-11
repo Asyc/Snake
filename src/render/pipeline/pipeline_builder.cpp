@@ -13,9 +13,11 @@ inline std::vector<char> readFileData(const std::string_view& path) {
     return std::move(buffer);
 }
 
-ShaderResource::ShaderResource(const RenderContext& context, const std::string& name) {
-    std::vector<char> vertexBuffer = readFileData("assets/shaders/" + name + ".vert.spv");
-    std::vector<char> fragmentBuffer = readFileData("assets/shaders/" + name + ".frag.spv");
+ShaderResource::ShaderResource(std::string name) : m_Name(std::move(name)) {}
+
+void ShaderResource::read(const RenderContext& context) {
+    std::vector<char> vertexBuffer = readFileData("assets/shaders/" + m_Name + ".vert.spv");
+    std::vector<char> fragmentBuffer = readFileData("assets/shaders/" + m_Name + ".frag.spv");
     vk::ShaderModuleCreateInfo vertexShaderModuleCreateInfo({}, vertexBuffer.size(), reinterpret_cast<uint32_t*>(vertexBuffer.data()));
     vk::ShaderModuleCreateInfo fragmentShaderModuleCreateInfo({}, fragmentBuffer.size(), reinterpret_cast<uint32_t*>(fragmentBuffer.data()));
     m_Vertex = context.getDevice().createShaderModuleUnique(vertexShaderModuleCreateInfo);

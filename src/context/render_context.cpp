@@ -1,5 +1,6 @@
 #include "render_context.hpp"
 
+#include <iostream>
 #include <optional>
 
 #define GLFW_INCLUDE_VULKAN
@@ -17,7 +18,7 @@ RenderContext::RenderContext(Window& window, const std::string_view& title, cons
     vk::InstanceCreateInfo instanceCreateInfo({}, &applicationInfo, 0, nullptr, extensionCount, extensions);
 #ifndef NDEBUG
     std::array<const char*, 1> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    instanceCreateInfo.enabledLayerCount = validationLayers.size();
+    instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
 #endif
     m_Instance = vk::createInstanceUnique(instanceCreateInfo);
@@ -57,12 +58,17 @@ RenderContext::RenderContext(Window& window, const std::string_view& title, cons
     std::array<const char*, 1> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     vk::PhysicalDeviceFeatures features;
-    vk::DeviceCreateInfo deviceCreateInfo({}, queueCount, queueCreateInfos.data(), 0, nullptr, deviceExtensions.size(), deviceExtensions.data(), &features);
+    vk::DeviceCreateInfo deviceCreateInfo({}, queueCount, queueCreateInfos.data(), 0, nullptr, static_cast<uint32_t>(deviceExtensions.size()), deviceExtensions.data(), &features);
     m_Device = m_PhysicalDevice.createDeviceUnique(deviceCreateInfo);
     m_GraphicsQueue = {m_Device->getQueue(graphicsIndex.value(), 0), graphicsIndex.value()};
     m_PresentQueue = {m_Device->getQueue(presentIndex.value(), 0), presentIndex.value()};
 
     m_Swapchain = std::move(Swapchain(this));
+}
+
+CommandPool RenderContext::createCommandPool(const vk::CommandPoolCreateFlags& flags) {
+    vk::CommandPoolCreateInfo commandPoolCreateInfo(flags, m_GraphicsQueue.m_Index);
+    return CommandPool{*this, m_Device->createCommandPoolUnique(commandPoolCreateInfo)};
 }
 
 vk::SurfaceKHR RenderContext::getSurface() const {

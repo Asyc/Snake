@@ -12,7 +12,9 @@
 
 class ShaderResource {
 public:
-    ShaderResource(const RenderContext& context, const std::string& name);
+    explicit ShaderResource(std::string name);
+    void read(const RenderContext& context);
+    std::string m_Name;
     vk::UniqueShaderModule m_Vertex;
     vk::UniqueShaderModule m_Fragment;
 };
@@ -22,7 +24,10 @@ class PipelineBuilder {
 public:
     PipelineBuilder(const RenderContext& context, ShaderResource shaders)
             : m_Device(context.getDevice()),
-              m_ShaderHandles(std::move(shaders)),
+              m_ShaderHandles([&context, &shaders](){
+                  shaders.read(context);
+                  return std::move(shaders);
+              }()),
               m_ShaderStages({vk::PipelineShaderStageCreateInfo({}, vk::ShaderStageFlagBits::eVertex,
                                                                 *m_ShaderHandles.m_Vertex,
                                                                 "main", nullptr),

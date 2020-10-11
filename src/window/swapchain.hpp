@@ -9,7 +9,7 @@
 
 class RenderContext;
 
-constexpr size_t MAX_CONCURRENT_FRAMES = 2;
+constexpr size_t MAX_CONCURRENT_FRAMES = 3;
 
 class Swapchain {
 public:

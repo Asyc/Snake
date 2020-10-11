@@ -4,7 +4,7 @@
 
 #include "context/render_context.hpp"
 
-Swapchain::Swapchain(RenderContext* context) : m_Parent(context), m_PresentMode(vk::PresentModeKHR::eFifo), m_ImageInFlight(0) {
+Swapchain::Swapchain(RenderContext* context) : m_Parent(context), m_PresentMode(vk::PresentModeKHR::eImmediate), m_ImageInFlight(0) {
     std::vector<vk::SurfaceFormatKHR> surfaceFormats = context->getPhysicalDevice().getSurfaceFormatsKHR(
             context->getSurface());
 
