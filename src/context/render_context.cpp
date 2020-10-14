@@ -55,7 +55,12 @@ RenderContext::RenderContext(Window& window, const std::string_view& title, cons
             vk::DeviceQueueCreateInfo({}, presentIndex.value(), 1, &priority)
     };
 
+
+#ifndef NDEBUG
+    std::array<const char*, 2> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME};
+#elif
     std::array<const char*, 1> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+#endif
 
     vk::PhysicalDeviceFeatures features;
     vk::DeviceCreateInfo deviceCreateInfo({}, queueCount, queueCreateInfos.data(), 0, nullptr, static_cast<uint32_t>(deviceExtensions.size()), deviceExtensions.data(), &features);
@@ -69,6 +74,10 @@ RenderContext::RenderContext(Window& window, const std::string_view& title, cons
 CommandPool RenderContext::createCommandPool(const vk::CommandPoolCreateFlags& flags) {
     vk::CommandPoolCreateInfo commandPoolCreateInfo(flags, m_GraphicsQueue.m_Index);
     return CommandPool{*this, m_Device->createCommandPoolUnique(commandPoolCreateInfo)};
+}
+
+VertexBuffer RenderContext::createVertexBuffer(size_t size) {
+    return VertexBuffer(*this, size);
 }
 
 vk::SurfaceKHR RenderContext::getSurface() const {

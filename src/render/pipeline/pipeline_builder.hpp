@@ -51,6 +51,7 @@ public:
               m_ColorBlendStateCreateInfo({}, VK_FALSE, vk::LogicOp::eClear, 1, &m_ColorBlendAttachmentState),
               m_DynamicStates(std::array<vk::DynamicState, DYNAMIC_STATES + 2>()),
               m_DynamicStateCreateInfo({}, static_cast<uint32_t>(m_DynamicStates.size()), m_DynamicStates.data()),
+              m_LayoutIndex(0),
               m_LayoutCreateInfo({}, static_cast<uint32_t>(m_Layouts.size()), m_Layouts.data(),
                                  static_cast<uint32_t>(m_PushConstants.size()),
                                  m_PushConstants.data()),
@@ -67,10 +68,12 @@ public:
 
     PipelineBuilder& setBinding(uint32_t binding, uint32_t stride) {
         m_Bindings[binding] = vk::VertexInputBindingDescription(binding, stride, vk::VertexInputRate::eVertex);
+        return *this;
     }
 
     PipelineBuilder& setAttribute(uint32_t binding, uint32_t location, vk::Format type, uint32_t offset) {
         m_Attributes[location] = vk::VertexInputAttributeDescription(location, binding, type, offset);
+        return *this;
     }
 
     Pipeline build() {
@@ -108,6 +111,7 @@ private:
     std::array<vk::DynamicState, DYNAMIC_STATES + 2> m_DynamicStates;
     vk::PipelineDynamicStateCreateInfo m_DynamicStateCreateInfo;
 
+    size_t m_LayoutIndex;
     std::array<vk::DescriptorSetLayout, LAYOUTS> m_Layouts;
     std::array<vk::PushConstantRange, PUSH_CONSTANTS> m_PushConstants;
     vk::PipelineLayoutCreateInfo m_LayoutCreateInfo;

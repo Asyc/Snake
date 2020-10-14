@@ -10,7 +10,7 @@ set(SOURCES
         src/context/render_context.cpp src/context/render_context.hpp
         src/window/swapchain.cpp src/window/swapchain.hpp
         src/render/pipeline/pipeline.cpp src/render/pipeline/pipeline.hpp
-        src/render/pipeline/pipeline_builder.cpp src/render/pipeline/pipeline_builder.hpp src/render/command.cpp src/render/command.hpp)
+        src/render/pipeline/pipeline_builder.cpp src/render/pipeline/pipeline_builder.hpp src/render/command.cpp src/render/command.hpp src/render/buffer.cpp src/render/buffer.hpp)
 
 add_subdirectory(libs/glfw)
 

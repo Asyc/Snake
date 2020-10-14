@@ -8,6 +8,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "render/buffer.hpp"
 #include "render/command.hpp"
 #include "window/swapchain.hpp"
 #include "window/window.hpp"
@@ -34,6 +35,8 @@ public:
     RenderContext(Window& window, const std::string_view& title, const Version& version, const PhysicalDeviceSelector& physicalDeviceSelector = selectPhysicalDevice);
 
     [[nodiscard]] CommandPool createCommandPool(const vk::CommandPoolCreateFlags& flags = {});
+    [[nodiscard]] VertexBuffer createVertexBuffer(size_t size);
+
     [[nodiscard]] vk::SurfaceKHR getSurface() const;
     [[nodiscard]] vk::PhysicalDevice getPhysicalDevice() const;
     [[nodiscard]] vk::Device getDevice() const;
@@ -41,7 +44,6 @@ public:
     [[nodiscard]] const Queue& getPresentQueue() const;
     [[nodiscard]] Swapchain& getSwapchain();
     [[nodiscard]] const Swapchain& getSwapchain() const;
-
 private:
     vk::UniqueInstance m_Instance;
     vk::UniqueSurfaceKHR m_Surface;
@@ -52,6 +54,8 @@ private:
     Queue m_PresentQueue;
 
     Swapchain m_Swapchain;
+
+    uint32_t m_VertexBufferMemoryTypeIndex;
 };
 
 #endif //SNAKE_RENDER_CONTEXT_HPP
