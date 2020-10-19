@@ -71,13 +71,8 @@ RenderContext::RenderContext(Window& window, const std::string_view& title, cons
     m_Swapchain = std::move(Swapchain(this));
 }
 
-CommandPool RenderContext::createCommandPool(const vk::CommandPoolCreateFlags& flags) {
-    vk::CommandPoolCreateInfo commandPoolCreateInfo(flags, m_GraphicsQueue.m_Index);
-    return CommandPool{*this, m_Device->createCommandPoolUnique(commandPoolCreateInfo)};
-}
-
-VertexBuffer RenderContext::createVertexBuffer(size_t size) {
-    return VertexBuffer(*this, size);
+VertexBuffer RenderContext::createVertexBuffer(size_t size, size_t indexCount) {
+    return VertexBuffer(*this, size, indexCount);
 }
 
 vk::SurfaceKHR RenderContext::getSurface() const {

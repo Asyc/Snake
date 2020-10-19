@@ -5,21 +5,21 @@
 
 class RenderContext;
 
+class VertexBuffer;
+
 struct CommandBuffer {
     RenderContext& m_Parent;
-    vk::UniqueCommandBuffer m_Handle;
-    vk::CommandBuffer* operator->();
-    vk::CommandBuffer& operator*();
-    void begin();
-    void setViewportScissor();
-    void end();
-};
+    vk::CommandBuffer m_Handle;
+    const vk::CommandBuffer* operator->() const;
+    const vk::CommandBuffer& operator*() const;
+    void begin() const;
 
-struct CommandPool {
-    RenderContext& m_Parent;
-    vk::UniqueCommandPool m_Handle;
-    CommandBuffer allocateCommandBuffer();
-};
+    void setViewportScissor() const;
 
+    void bindVertexBuffer(const VertexBuffer& vertexBuffer) const;
+    void drawVertexBuffer(const VertexBuffer& vertexBuffer) const;
+
+    void end() const;
+};
 
 #endif //SNAKE_COMMAND_HPP

@@ -58,7 +58,7 @@ void Swapchain::createSwapchain() {
             queues,
             surfaceCapabilities.currentTransform,
             vk::CompositeAlphaFlagBitsKHR::eOpaque,
-            vk::PresentModeKHR::eImmediate,
+            m_PresentMode,
             VK_TRUE,
             *m_Swapchain
     );
@@ -130,7 +130,7 @@ const Swapchain::ImageFlightData& Swapchain::nextImage() {
     image.m_CommandBuffer->begin(commandBufferBeginInfo);
 
     vk::RenderPassBeginInfo renderPassBeginInfo(*m_RenderPass, *image.m_BoundImage->m_FrameBuffer, vk::Rect2D({}, m_Extent), 1, &clearValue);
-    image.m_CommandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eSecondaryCommandBuffers);
+    image.m_CommandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
     return image;
 }

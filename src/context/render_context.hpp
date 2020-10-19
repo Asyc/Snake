@@ -13,8 +13,6 @@
 #include "window/swapchain.hpp"
 #include "window/window.hpp"
 
-struct CommandPool;
-
 class RenderContext {
 public:
     using PhysicalDeviceSelector = std::function<vk::PhysicalDevice(const std::vector<vk::PhysicalDevice>&)>;
@@ -34,8 +32,7 @@ public:
 
     RenderContext(Window& window, const std::string_view& title, const Version& version, const PhysicalDeviceSelector& physicalDeviceSelector = selectPhysicalDevice);
 
-    [[nodiscard]] CommandPool createCommandPool(const vk::CommandPoolCreateFlags& flags = {});
-    [[nodiscard]] VertexBuffer createVertexBuffer(size_t size);
+    [[nodiscard]] VertexBuffer createVertexBuffer(size_t size, size_t indexCount);
 
     [[nodiscard]] vk::SurfaceKHR getSurface() const;
     [[nodiscard]] vk::PhysicalDevice getPhysicalDevice() const;

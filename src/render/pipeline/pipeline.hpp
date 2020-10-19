@@ -7,6 +7,8 @@ class Pipeline {
 public:
     Pipeline(vk::UniquePipeline pipeline, vk::UniquePipelineLayout layout);
     [[nodiscard]] vk::Pipeline getPipeline() const;
+
+    [[nodiscard]] vk::PipelineLayout getLayout() const;
 private:
     vk::UniquePipeline m_Pipeline;
     vk::UniquePipelineLayout m_Layout;

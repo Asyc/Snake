@@ -3,8 +3,10 @@
 
 layout(location = 0) out vec4 fs_Color;
 
-layout (location = 0) in vec4 vs_Color;
+layout(push_constant) uniform fragmentPushConstants {
+    layout(offset = 0) vec4 color;
+};
 
 void main() {
-    fs_Color = vs_Color;
+    fs_Color = color;
 }

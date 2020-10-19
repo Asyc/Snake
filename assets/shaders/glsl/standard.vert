@@ -1,11 +1,12 @@
 #version 450
 
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec4 color;
+layout (location = 0) in ivec2 pos;
 
-layout (location = 0) out vec4 vs_Color;
+layout(push_constant) uniform vertexPushConstants {
+    layout(offset = 16) mat4 projectionMatrix;
+    layout(offset = 80) mat4 modelMatrix;
+};
 
 void main() {
-    gl_Position = vec4(pos, 1.f);
-    vs_Color = color;
+    gl_Position = projectionMatrix * modelMatrix * vec4(float(pos.x), float(pos.y), 0.0f, 1.0f);
 }

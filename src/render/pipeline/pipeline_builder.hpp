@@ -76,6 +76,11 @@ public:
         return *this;
     }
 
+    PipelineBuilder& setPushConstantRange(vk::ShaderStageFlagBits shaderStage, uint32_t offset, size_t size) {
+        m_PushConstants[m_LayoutIndex++] = vk::PushConstantRange(shaderStage, offset, static_cast<uint32_t>(size));
+        return *this;
+    }
+
     Pipeline build() {
         vk::UniquePipelineLayout layout = m_Device.createPipelineLayoutUnique(m_LayoutCreateInfo);
         m_PipelineCreateInfo.layout = *layout;
@@ -84,8 +89,8 @@ public:
         m_DynamicStates[m_DynamicStates.size() - 2] = vk::DynamicState::eScissor;
 
 
-        return std::move(Pipeline(m_Device.createGraphicsPipelineUnique({}, m_PipelineCreateInfo),
-                                  std::move(layout)));
+        return Pipeline(m_Device.createGraphicsPipelineUnique({}, m_PipelineCreateInfo),
+                        std::move(layout));
     }
 
 private:
