@@ -56,12 +56,11 @@ RenderContext::RenderContext(Window& window, const std::string_view& title, cons
     };
 
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__APPLE__)
     std::array<const char*, 2> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME};
-#elif
+#else
     std::array<const char*, 1> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 #endif
-
     vk::PhysicalDeviceFeatures features;
     vk::DeviceCreateInfo deviceCreateInfo({}, queueCount, queueCreateInfos.data(), 0, nullptr, static_cast<uint32_t>(deviceExtensions.size()), deviceExtensions.data(), &features);
     m_Device = m_PhysicalDevice.createDeviceUnique(deviceCreateInfo);

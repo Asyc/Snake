@@ -472,3 +472,9 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+
+# Mac
+.DS_Store
+
+# Build
+build/

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "game/application.hpp"
 
 void run() {
@@ -6,6 +8,7 @@ void run() {
 }
 
 int main() {
+
 #ifdef NDEBUG
     try {
         Window::initLibrary();
@@ -19,7 +22,6 @@ int main() {
     Window::initLibrary();
     run();
 #endif
-
     Window::terminateLibrary();
     return 0;
 }
