@@ -1,6 +1,6 @@
 #version 450
 
-layout (location = 0) in ivec2 pos;
+layout (location = 0) in vec2 pos;
 
 layout(push_constant) uniform vertexPushConstants {
     layout(offset = 16) mat4 projectionMatrix;

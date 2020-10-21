@@ -13,6 +13,8 @@
 
 class Application {
 public:
+    constexpr static size_t HORIZONTAL_TILES = 50, VERTICAL_TILES = 50;
+
     void enterGameLoop();
     static Application* getApplication();
 private:
@@ -29,6 +31,8 @@ private:
 
     bool m_Active;
     std::chrono::high_resolution_clock::time_point m_LastTick;
+
+    std::queue<Snake::Direction> m_KeyQueue;
 
     void update();
     void render(const CommandBuffer& target);

@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <queue>
 
 #include <GLFW/glfw3.h>
 #include <glm/matrix.hpp>
@@ -10,11 +11,11 @@
 
 #include "render/pipeline/pipeline_builder.hpp"
 
-constexpr size_t HORIZONTAL_TILES = 50, VERTICAL_TILES = 50;
 
 struct Vertex {
-    glm::ivec2 pos;
+    glm::vec2 pos;
 };
+
 
 Application* Application::s_Application = nullptr;
 
@@ -22,17 +23,17 @@ Application::Application() : m_Window(1920, 1920, "Snake | FPS: Not Calculated")
                              m_Pipeline([&]() {
             PipelineBuilder<1, 1, 0, 2, 0> builder(m_Context, ShaderResource("standard"));
             builder.setBinding(0, sizeof(Vertex))
-                    .setAttribute(0, 0, vk::Format::eR32G32Sint, 0)
+                    .setAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
                     .setPushConstantRange(vk::ShaderStageFlagBits::eFragment, 0, sizeof(glm::vec4))
                     .setPushConstantRange(vk::ShaderStageFlagBits::eVertex, sizeof(glm::vec4), sizeof(glm::mat4) * 2);
             return builder.build();
         }()), m_Snake(HORIZONTAL_TILES, VERTICAL_TILES), m_SnakeBuffer([&](){
             VertexBuffer buffer(m_Context, sizeof(Vertex) * 4, 6);
             std::array<Vertex, 4> vertices = {
-                    Vertex{glm::ivec2(0, 1)},
-                    Vertex{glm::ivec2(0, 0)},
-                    Vertex{glm::ivec2(1, 0)},
-                    Vertex{glm::ivec2(1, 1)}
+                    Vertex{glm::vec2(0.05f, 0.95f)},
+                    Vertex{glm::vec2(0.05f, 0.05)},
+                    Vertex{glm::vec2(0.95f, 0.05)},
+                    Vertex{glm::vec2(0.95f, 0.95f)}
             };
             std::array<uint32_t, 6> indices = {0, 1, 2, 0, 3, 2};
 
@@ -49,10 +50,12 @@ Application::Application() : m_Window(1920, 1920, "Snake | FPS: Not Calculated")
     m_Window.setKeyCallback([](int key, int scancode, int action, int){
         if (action != GLFW_PRESS) return;
         auto& snake = Application::s_Application->m_Snake;
-        auto direction = snake.getDirection();
+        auto prev = snake.getDirection();
+
         switch (key) {
             case GLFW_KEY_UP:
                 if (snake.getDirection() != Snake::Direction::DOWN) snake.switchDirection(Snake::Direction::UP);
+                break;
             case GLFW_KEY_DOWN:
                 if (snake.getDirection() != Snake::Direction::UP) snake.switchDirection(Snake::Direction::DOWN);
                 break;
@@ -65,9 +68,8 @@ Application::Application() : m_Window(1920, 1920, "Snake | FPS: Not Calculated")
             default:
                 break;
         }
-        if (direction != snake.getDirection()) {
-            snake.tick();
-            Application::s_Application->m_LastTick = std::chrono::high_resolution_clock::now();
+
+        if (snake.getDirection() != prev) {
             Application::s_Application->m_Active = true;
         }
     });
@@ -78,7 +80,6 @@ void Application::enterGameLoop() {
     size_t frames = 0;
 
     auto last = std::chrono::high_resolution_clock::now();
-    m_Snake.switchDirection(Snake::Direction::UP);
     while (!m_Window.shouldClose()) {
         Window::pollEvents();
         update();
@@ -111,15 +112,18 @@ void Application::enterGameLoop() {
 
 void Application::update() {
     if (!m_Active) return;
+
     auto now = std::chrono::high_resolution_clock::now();
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_LastTick).count() >= 80) {
-        m_Snake.tick();
-        m_LastTick = now;
-    }
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_LastTick).count() < 100) return;
+
     if (m_Snake.doesCollide()) {
         m_Active = false;
         m_Snake.reset();
+    } else {
+        m_Snake.tick();
     }
+
+    m_LastTick = now;
 }
 
 void Application::render(const CommandBuffer& buffer) {
@@ -129,17 +133,22 @@ void Application::render(const CommandBuffer& buffer) {
     glm::vec4 color(0.0f, 1.0f, 0.0f, 1.0f);
     buffer->pushConstants(m_Pipeline.getLayout(), vk::ShaderStageFlagBits::eFragment, 0, sizeof(glm::vec4), glm::value_ptr(color));
     buffer->pushConstants(m_Pipeline.getLayout(), vk::ShaderStageFlagBits::eVertex, sizeof(glm::vec4), sizeof(glm::mat4), glm::value_ptr(m_ProjectionMatrix));
+    buffer.bindVertexBuffer(m_SnakeBuffer);
+
     auto renderBody = [&](const glm::ivec2& pos) {
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(pos.x, pos.y, 0));
         buffer->pushConstants(m_Pipeline.getLayout(), vk::ShaderStageFlagBits::eVertex, sizeof(glm::vec4) + sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(modelMatrix));
 
-
-        buffer.bindVertexBuffer(m_SnakeBuffer);
         buffer.drawVertexBuffer(m_SnakeBuffer);
     };
 
     renderBody(m_Snake.getHead());
+
     std::for_each(m_Snake.getBody().begin(), m_Snake.getBody().end(), [&renderBody](const glm::ivec2& pos){renderBody(pos);});
+
+    color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    buffer->pushConstants(m_Pipeline.getLayout(), vk::ShaderStageFlagBits::eFragment, 0, sizeof(glm::vec4), glm::value_ptr(color));
+    renderBody(m_Snake.getTarget());
 }
 
 void Application::createProjection() {

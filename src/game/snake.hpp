@@ -2,8 +2,13 @@
 #define SNAKE_SNAKE_HPP
 
 #include <cstdint>
+#include <list>
+#include <unordered_set>
+#include <queue>
 #include <vector>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 #include <glm/vec2.hpp>
 
 class Snake {
@@ -17,15 +22,20 @@ public:
     void tick();
     void switchDirection(Direction direction);
     void reset();
+    void setTarget();
 
     [[nodiscard]] bool doesCollide() const;
 
     [[nodiscard]] Direction getDirection() const;
+    [[nodiscard]] const glm::ivec2& getTarget() const;
     [[nodiscard]] const glm::ivec2& getHead() const;
-    [[nodiscard]] const std::vector<glm::ivec2>& getBody() const;
+    [[nodiscard]] const std::list<glm::ivec2>& getBody() const;
 private:
     glm::ivec2 m_Head, m_Target;
-    std::vector<glm::ivec2> m_Body;
+    std::list<glm::ivec2> m_Body;
+    std::unordered_set<glm::ivec2> m_BodySet;
+    std::queue<Direction> m_DirectionQueue;
+
     Direction m_Direction;
 
     size_t m_Width, m_Height;
