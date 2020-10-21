@@ -19,7 +19,7 @@ struct Vertex {
 
 Application* Application::s_Application = nullptr;
 
-Application::Application() : m_Window(1920, 1920, "Snake | FPS: Not Calculated"), m_Context(m_Window, "Snake", {0, 1, 0}),
+Application::Application() : m_Window(720, 720, "Snake | FPS: Not Calculated"), m_Context(m_Window, "Snake", {0, 1, 0}),
                              m_Pipeline([&]() {
             PipelineBuilder<1, 1, 0, 2, 0> builder(m_Context, ShaderResource("standard"));
             builder.setBinding(0, sizeof(Vertex))
@@ -72,6 +72,12 @@ Application::Application() : m_Window(1920, 1920, "Snake | FPS: Not Calculated")
         if (snake.getDirection() != prev) {
             Application::s_Application->m_Active = true;
         }
+    });
+
+    m_Window.setResizeCallback([](int width, int height) {
+        Application::s_Application->m_Context.getDevice().waitIdle();
+        Application::s_Application->m_Context.getSwapchain().createSwapchain();
+        Application::s_Application->createProjection();
     });
 }
 

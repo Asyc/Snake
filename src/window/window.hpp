@@ -10,6 +10,7 @@ struct GLFWwindow;
 class Window {
 public:
     using KeyCallback = std::function<void(int key, int scancode, int action, int mods)>;
+    using ResizeCallback = std::function<void(int width, int height)>;
 
     Window(int width, int height, const std::string_view& title);
 
@@ -26,6 +27,7 @@ public:
     void setTitle(const std::string_view& title) const;
 
     void setKeyCallback(KeyCallback callback);
+    void setResizeCallback(ResizeCallback callback);
 
     [[nodiscard]] bool shouldClose() const;
 
@@ -41,6 +43,7 @@ public:
 
 private:
     KeyCallback m_KeyCallback;
+    ResizeCallback m_ResizeCallback;
     GLFWwindow* m_WindowHandle;
 };
 

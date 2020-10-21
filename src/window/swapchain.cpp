@@ -33,6 +33,30 @@ Swapchain::Swapchain(RenderContext* context) : m_Parent(context), m_PresentMode(
     m_RenderPass = m_Parent->getDevice().createRenderPassUnique(renderPassCreateInfo);
 
     createSwapchain();
+
+    vk::CommandPoolCreateInfo commandPoolCreateInfo({vk::CommandPoolCreateFlagBits::eResetCommandBuffer}, m_Parent->getGraphicsQueue().m_Index);
+    m_CommandPool = m_Parent->getDevice().createCommandPoolUnique(commandPoolCreateInfo);
+
+    vk::CommandBufferAllocateInfo commandBufferAllocateInfo(*m_CommandPool, vk::CommandBufferLevel::ePrimary,
+                                                            MAX_CONCURRENT_FRAMES);
+
+    vk::CommandBuffer buffers[MAX_CONCURRENT_FRAMES];
+    m_Parent->getDevice().allocateCommandBuffers(&commandBufferAllocateInfo, buffers);
+
+    vk::SemaphoreCreateInfo semaphoreCreateInfo;
+    vk::FenceCreateInfo fenceCreateInfo(vk::FenceCreateFlagBits::eSignaled);
+
+    for (size_t i = 0; i < MAX_CONCURRENT_FRAMES; i++) {
+        m_ImageFlightData[i] = ImageFlightData{
+                vk::UniqueCommandBuffer(buffers[i],
+                                        vk::PoolFree<vk::Device, vk::CommandPool, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE>(
+                                                m_Parent->getDevice(), *m_CommandPool)),
+                m_Parent->getDevice().createSemaphoreUnique(semaphoreCreateInfo),
+                m_Parent->getDevice().createSemaphoreUnique(semaphoreCreateInfo),
+                m_Parent->getDevice().createFenceUnique(fenceCreateInfo),
+                nullptr
+        };
+    }
 }
 
 void Swapchain::createSwapchain() {
@@ -87,30 +111,6 @@ void Swapchain::createSwapchain() {
                 std::move(imageView),
                 std::move(framebuffer),
                 i
-        };
-    }
-
-    vk::CommandPoolCreateInfo commandPoolCreateInfo({vk::CommandPoolCreateFlagBits::eResetCommandBuffer}, m_Parent->getGraphicsQueue().m_Index);
-    m_CommandPool = m_Parent->getDevice().createCommandPoolUnique(commandPoolCreateInfo);
-
-    vk::CommandBufferAllocateInfo commandBufferAllocateInfo(*m_CommandPool, vk::CommandBufferLevel::ePrimary,
-                                                            MAX_CONCURRENT_FRAMES);
-
-    vk::CommandBuffer buffers[MAX_CONCURRENT_FRAMES];
-    m_Parent->getDevice().allocateCommandBuffers(&commandBufferAllocateInfo, buffers);
-
-    vk::SemaphoreCreateInfo semaphoreCreateInfo;
-    vk::FenceCreateInfo fenceCreateInfo(vk::FenceCreateFlagBits::eSignaled);
-
-    for (size_t i = 0; i < MAX_CONCURRENT_FRAMES; i++) {
-        m_ImageFlightData[i] = ImageFlightData{
-                vk::UniqueCommandBuffer(buffers[i],
-                                        vk::PoolFree<vk::Device, vk::CommandPool, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE>(
-                                                m_Parent->getDevice(), *m_CommandPool)),
-                m_Parent->getDevice().createSemaphoreUnique(semaphoreCreateInfo),
-                m_Parent->getDevice().createSemaphoreUnique(semaphoreCreateInfo),
-                m_Parent->getDevice().createFenceUnique(fenceCreateInfo),
-                nullptr
         };
     }
 }

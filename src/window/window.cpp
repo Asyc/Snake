@@ -5,10 +5,10 @@
 #include <GLFW/glfw3.h>
 
 Window::Window(int width, int height, const std::string_view& title) {
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_FALSE);
     m_WindowHandle = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
     glfwSetWindowUserPointer(m_WindowHandle, this);
+    glfwSetWindowAspectRatio(m_WindowHandle, 1, 1);
 }
 
 Window::Window(Window&& rhs) noexcept {
@@ -36,6 +36,14 @@ void Window::setKeyCallback(KeyCallback callback) {
     glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow* handle, int key, int scancode, int action, int mods) {
         auto* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(handle));
         window->m_KeyCallback(key, scancode, action, mods);
+    });
+}
+
+void Window::setResizeCallback(ResizeCallback callback) {
+    m_ResizeCallback = std::move(callback);
+    glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow* handle, int width, int height){
+        auto* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(handle));
+        window->m_ResizeCallback(width, height);
     });
 }
 
